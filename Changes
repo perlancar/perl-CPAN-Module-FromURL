@@ -1,5 +1,12 @@
 Revision history for CPAN-Module-FromURL
 
+0.02    2016-02-21 (PERLANCAR)
+
+	- Recognize "metacpan.org/module/MOD" (old form of
+	  "metacpan.org/pod/MOD"), "search.cpan.org/dist/DIST", and
+	  "search.cpan.org/perldoc?MOD").
+
+
 0.01     2016-02-20 (PERLANCAR)
 
          - First release.
