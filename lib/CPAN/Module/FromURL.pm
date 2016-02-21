@@ -28,40 +28,92 @@ $SPEC{extract_module_from_cpan_url} = {
     },
     result_naked => 1,
     examples => [
+        # metacpan.org/pod/PKG
         {
             args => {url=>'https://metacpan.org/pod/Foo::Bar'},
             result => 'Foo::Bar',
-            test => 0, # TMP: there's still a bug in testri?
         },
+        {
+            args => {url=>'http://metacpan.org/pod/Foo'},
+            result => 'Foo',
+        },
+
+        # metacpan.org/module/PKG
+        {
+            args => {url=>'https://metacpan.org/module/Foo::Bar'},
+            result => 'Foo::Bar',
+        },
+
+        # metacpan.org/pod/release/PAUSEID/RELEASE/lib/PKG.pm
         {
             args => {url=>'https://metacpan.org/pod/release/SMONF/Dependencies-Searcher-0.066_001/lib/Dependencies/Searcher.pm'},
             result => 'Dependencies::Searcher',
-            test => 0, # TMP: there's still a bug in testri?
         },
+        {
+            args => {url=>'http://metacpan.org/pod/release/SRI/Mojolicious-6.46/lib/Mojo.pm'},
+            result => 'Mojo',
+        },
+
+        # search.cpan.org/~PAUSEID/RELEASE/lib/PKG.pm
+        {
+            args => {url=>'http://search.cpan.org/~unera/DR-SunDown-0.02/lib/DR/SunDown.pm'},
+            result => 'DR::SunDown',
+        },
+        {
+            args => {url=>'https://search.cpan.org/~sri/Mojolicious-6.47/lib/Mojo.pm'},
+            result => 'Mojo',
+        },
+
+        # search.cpan.org/dist/DIST
+        {
+            args => {url=>'http://search.cpan.org/dist/Foo-Bar/'},
+            result => 'Foo::Bar',
+        },
+
+        # search.cpan.org/perldoc?MOD
+        {
+            args => {url=>'http://search.cpan.org/perldoc?Foo::Bar'},
+            result => 'Foo::Bar',
+        },
+        {
+            args => {url=>'http://search.cpan.org/perldoc?Foo'},
+            result => 'Foo',
+        },
+
         {
             args => {url=>'https://www.google.com/'},
             result => undef,
-            test => 0, # TMP: there's still a bug in testri?
         },
     ],
 };
 sub extract_module_from_cpan_url {
     my $url = shift;
 
-    if ($url =~ m!\Ahttps?://metacpan\.org/pod/(\w+(?:::\w+)*)\z!i) {
+    # note: /module is the old URL
+    if ($url =~ m!\Ahttps?://metacpan\.org/(?:pod|module)/(\w+(?:::\w+)*)\z!) {
         return $1;
     }
 
-    if ($url =~ m!\Ahttps?://metacpan\.org/pod/release/[^/]+/[^/]+/lib/((?:[^/]+/)*\w+)\.pm\z!i) {
+    if ($url =~ m!\Ahttps?://metacpan\.org/pod/release/[^/]+/[^/]+/lib/((?:[^/]+/)*\w+)\.pm\z!) {
         my $mod = $1;
         $mod =~ s!/!::!g;
         return $mod;
     }
 
-    if ($url =~ m!\Ahttps?://search\.cpan\.org/~[^/]+/[^/]+/lib/((?:[^/]+/)*\w+).pm\z!i) {
+    if ($url =~ m!\Ahttps?://search\.cpan\.org/~[^/]+/[^/]+/lib/((?:[^/]+/)*\w+).pm\z!) {
         my $mod = $1;
         $mod =~ s!/!::!g;
         return $mod;
+    }
+
+    if ($url =~ m!\Ahttps?://search\.cpan\.org/dist/([A-Za-z0-9_-]+)/?\z!) {
+        my $mod = $1;
+        $mod =~ s!-!::!g;
+        return $mod;
+    }
+
+    if ($url =~ m!\Ahttps?://search\.cpan\.org/perldoc\?(\w+(?:::\w+)*)\z!) {
+        return $1;
     }
 
     undef;
