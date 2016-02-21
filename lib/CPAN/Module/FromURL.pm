@@ -92,6 +92,13 @@ $SPEC{extract_module_from_cpan_url} = {
             result => 'Foo',
         },
 
+        # search.cpan.org/search?mode=module&query=MOD
+        {
+            args => {url=>'http://search.cpan.org/search?mode=module&query=DBIx%3A%3AClass'},
+            result => 'DBIx::Class',
+        },
+
+        # UNKNOWN
         {
             args => {url=>'https://www.google.com/'},
             result => undef,
@@ -138,6 +145,16 @@ sub extract_module_from_cpan_url {
 
     if ($url =~ m!\Ahttps?://search\.cpan\.org/perldoc\?(\w+(?:::\w+)*)\z!) {
         return $1;
+    }
+
+    # used by perlmonks.org
+    {
+        if ($url =~ m!\Ahttps?://search\.cpan\.org/search\?mode=module&query=(.+)\z!) {
+            require URI::Escape;
+            my $mod = URI::Escape::uri_unescape($1);
+            last unless $mod =~ /\A\w+(::\w+)*\z/;
+            return $mod;
+        }
     }
 
     undef;
