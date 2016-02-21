@@ -44,6 +44,18 @@ $SPEC{extract_module_from_cpan_url} = {
             result => 'Foo::Bar',
         },
 
+        # metacpan.org/release/DIST
+        {
+            args => {url=>'https://metacpan.org/release/Foo-Bar'},
+            result => 'Foo::Bar',
+        },
+
+        # metacpan.org/release/AUTHOR/RELEASE
+        {
+            args => {url=>'https://metacpan.org/release/PAUSEID/Foo-Bar-1.23'},
+            result => 'Foo::Bar',
+        },
+
         # metacpan.org/pod/release/PAUSEID/RELEASE/lib/PKG.pm
         {
             args => {url=>'https://metacpan.org/pod/release/SMONF/Dependencies-Searcher-0.066_001/lib/Dependencies/Searcher.pm'},
@@ -97,6 +109,18 @@ sub extract_module_from_cpan_url {
     if ($url =~ m!\Ahttps?://metacpan\.org/pod/release/[^/]+/[^/]+/lib/((?:[^/]+/)*\w+)\.pm\z!) {
         my $mod = $1;
         $mod =~ s!/!::!g;
+        return $mod;
+    }
+
+    if ($url =~ m!\Ahttps?://metacpan\.org/release/(\w+(?:-\w+)*)/?\z!) {
+        my $mod = $1;
+        $mod =~ s!-!::!g;
+        return $mod;
+    }
+
+    if ($url =~ m!\Ahttps?://metacpan\.org/release/[^/]+/(\w+(?:-\w+)*)-\d[^-]*/?\z!) {
+        my $mod = $1;
+        $mod =~ s!-!::!g;
         return $mod;
     }
 
