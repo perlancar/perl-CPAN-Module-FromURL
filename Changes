@@ -1,5 +1,13 @@
 Revision history for CPAN-Module-FromURL
 
+0.04    2016-02-26 (PERLANCAR)
+
+	- No functional changes.
+
+	- Rebuild (fix example rendering in POD using updated
+	  Perinci::To::POD (0.76)).
+
+
 0.03    2016-02-21 (PERLANCAR)
 
         - Recognize "search.cpan.org/search?mode=module&query=MOD" (used by
